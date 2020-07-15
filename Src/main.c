@@ -23,6 +23,9 @@
 #include "usart.h"
 #include "gpio.h"
 
+#include "menu.h"
+#include "LAPSRCcommon.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -94,16 +97,19 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 //  Main_Menu();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   t=HAL_GetTick();
+	HAL_UART_Transmit(&huart3,"IAP\r\n",5,1000);
+
   while (1)
   {
-	  if((HAL_GetTick() - t) < 3000 || ((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFD0000 ) != 0x20000000){
+	  if((HAL_GetTick() - t) < 3000 /*|| ((*(__IO uint32_t*)MAIN_APPLICATION_ADDRESS) & 0x2FFD0000 ) != 0x20000000*/ ){
 		  if(SerialKeyPressed(&k)){
-			  if(SerialDownload() == 0){
+			  if(SerialDownload_update() == 0){
 				  break;
 			  }else{
 				  NVIC_SystemReset();
@@ -116,11 +122,11 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
   }
-  JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
+  JumpAddress = *(__IO uint32_t*) (MAIN_APPLICATION_ADDRESS + 4);
   /* Jump to user application */
   Jump_To_Application = (pFunction) JumpAddress;
   /* Initialize user application's Stack Pointer */
-  __set_MSP(*(__IO uint32_t*) APPLICATION_ADDRESS);
+  __set_MSP(*(__IO uint32_t*) MAIN_APPLICATION_ADDRESS);
   Jump_To_Application();
   /* USER CODE END 3 */
 }

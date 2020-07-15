@@ -54,12 +54,24 @@
   #define USER_FLASH_END_ADDRESS        0x080FFFFF
 #endif
 
+#define MAIN_FLASH_END_ADDRESS        	0x0803FFFF
+#define BACKUP_FlASH_END_ADDRESS		0x0807FFFF
+
 /* Define the user application size */
 #define USER_FLASH_SIZE   (USER_FLASH_END_ADDRESS - APPLICATION_ADDRESS + 1)
+
+#define MAIN_FLASH_SIZE   (MAIN_FLASH_END_ADDRESS - MAIN_APPLICATION_ADDRESS + 1)
+#define BACKUP_FLASH_SUZE (BACKUP_FlASH_END_ADDRESS - BACKUP_APPLICATION_ADDRESS + 1)
 
 /* Define the address from where user application will be loaded.
    Note: the 1st sector 0x08000000-0x08003FFF is reserved for the IAP code */
 #define APPLICATION_ADDRESS   (uint32_t)0x08004000 
+
+#define MAIN_APPLICATION_ADDRESS   						(uint32_t)0x08004000
+#define LAST_MAIN_APPLICATION_ADDRESS_FLASH_SECTOR_NN 	FLASH_SECTOR_5
+
+#define BACKUP_APPLICATION_ADDRESS 						(uint32_t)0x08040000
+#define LAST_BACKUP_APPLICATION_ADDRESS_FLASH_SECTOR_NN FLASH_SECTOR_7
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
@@ -69,10 +81,12 @@ uint32_t FLASH_If_Write(__IO uint32_t* FlashAddress, uint32_t* Data, uint32_t Da
 uint16_t FLASH_If_GetWriteProtectionStatus(void);
 uint32_t FLASH_If_DisableWriteProtection(void);
 
+uint32_t FLASH_If_BACKUP_Erase(uint32_t StartSector);
+uint32_t FLASH_If_MAIN_Erase(uint32_t StartSector);
 /* added by jrkim ------------------------------------------------------------*/
 //
-// Flash sector¿¡¼­ ¸¶Áö¸· ¼³Á¤
-// stm32f4xx_hal_flash_ex.h ÂüÁ¶
+// Flash sectorï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+// stm32f4xx_hal_flash_ex.h ï¿½ï¿½ï¿½ï¿½
 //
 #ifdef USE_HAL_DRIVER
 #if defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx)
