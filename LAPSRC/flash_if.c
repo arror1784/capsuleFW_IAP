@@ -25,6 +25,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "flash_if2.h"
+#include "flash_if.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -77,7 +78,7 @@ uint32_t FLASH_If_Erase(uint32_t StartSector)
   UserStartSector = GetSector(APPLICATION_ADDRESS);
 
 #ifdef USE_HAL_DRIVER
-  // stm32f411xe ´Â FLASH_SECTOR_xx°¡ 0~7 ±îÁö
+  // stm32f411xe ï¿½ï¿½ FLASH_SECTOR_xxï¿½ï¿½ 0~7 ï¿½ï¿½ï¿½ï¿½
   //FLASH_EraseInitTypeDef eraseInitStruct;
   uint32_t err;
 
@@ -112,6 +113,108 @@ uint32_t FLASH_If_Erase(uint32_t StartSector)
   }
 #endif
   
+  return (0);
+}
+
+uint32_t FLASH_If_BACKUP_Erase(uint32_t StartSector){
+#ifdef USE_HAL_DRIVER
+  __IO uint32_t UserStartSector = FLASH_SECTOR_1;
+#else
+  __IO uint32_t UserStartSector = FLASH_Sector_1;
+#endif
+
+  uint32_t i = 0;
+
+  /* Get the sector where start the user flash area */
+  UserStartSector = GetSector(BACKUP_APPLICATION_ADDRESS);
+
+#ifdef USE_HAL_DRIVER
+  // stm32f411xe ï¿½ï¿½ FLASH_SECTOR_xxï¿½ï¿½ 0~7 ï¿½ï¿½ï¿½ï¿½
+  //FLASH_EraseInitTypeDef eraseInitStruct;
+  uint32_t err;
+
+  HAL_FLASH_Unlock();
+
+  for(i = UserStartSector; i <= LAST_BACKUP_APPLICATION_ADDRESS_FLASH_SECTOR_NN; i += 1)
+  {
+    /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
+       be done by word */
+    FLASH_Erase_Sector(i, FLASH_VOLTAGE_RANGE_3);
+    FLASH_WaitForLastOperation(1000);
+
+    err = HAL_FLASH_GetError();
+    if (err != 0) {
+      HAL_FLASH_Lock();
+
+      return (err);
+    }
+  }
+
+  HAL_FLASH_Lock();
+#else
+  for(i = UserStartSector; i <= FLASH_Sector_11; i += 8)
+  {
+    /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
+       be done by word */
+    if (FLASH_EraseSector(i, VoltageRange_3) != FLASH_COMPLETE)
+    {
+      /* Error occurred while page erase */
+      return (1);
+    }
+  }
+#endif
+
+  return (0);
+}
+
+uint32_t FLASH_If_MAIN_Erase(uint32_t StartSector){
+#ifdef USE_HAL_DRIVER
+  __IO uint32_t UserStartSector = FLASH_SECTOR_1;
+#else
+  __IO uint32_t UserStartSector = FLASH_Sector_1;
+#endif
+
+  uint32_t i = 0;
+
+  /* Get the sector where start the user flash area */
+  UserStartSector = GetSector(MAIN_APPLICATION_ADDRESS);
+
+#ifdef USE_HAL_DRIVER
+  // stm32f411xe ï¿½ï¿½ FLASH_SECTOR_xxï¿½ï¿½ 0~7 ï¿½ï¿½ï¿½ï¿½
+  //FLASH_EraseInitTypeDef eraseInitStruct;
+  uint32_t err;
+
+  HAL_FLASH_Unlock();
+
+  for(i = UserStartSector; i <= LAST_MAIN_APPLICATION_ADDRESS_FLASH_SECTOR_NN; i += 1)
+  {
+    /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
+       be done by word */
+    FLASH_Erase_Sector(i, FLASH_VOLTAGE_RANGE_3);
+    FLASH_WaitForLastOperation(1000);
+
+    err = HAL_FLASH_GetError();
+    if (err != 0) {
+      HAL_FLASH_Lock();
+
+      return (err);
+    }
+  }
+
+  HAL_FLASH_Lock();
+#else
+  for(i = UserStartSector; i <= FLASH_Sector_11; i += 8)
+  {
+    /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
+       be done by word */
+    if (FLASH_EraseSector(i, VoltageRange_3) != FLASH_COMPLETE)
+    {
+      /* Error occurred while page erase */
+      return (1);
+    }
+  }
+#endif
+
   return (0);
 }
 

@@ -25,6 +25,8 @@
 
 #include "menu.h"
 #include "LAPSRCcommon.h"
+#include "ymodem.h"
+#include "flash_if.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -103,23 +105,42 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   t=HAL_GetTick();
-	HAL_UART_Transmit(&huart3,"IAP\r\n",5,1000);
+  HAL_UART_Transmit(&huart3,"IAP\r\n",5,1000);
+
+  if(((*(__IO uint32_t*)MAIN_APPLICATION_ADDRESS) & 0x2FFD0000 ) != 0x20000000){
+	  SerialDownload_update();
+	  NVIC_SystemReset();
+  }else{
+	  HAL_UART_Transmit(&huart3,"main application available\r\n",29,1000);
+  }
+
+  if(((*(__IO uint32_t*)BACKUP_APPLICATION_ADDRESS) & 0x2FFD0000 ) == 0x20000000){
+	  HAL_UART_Transmit(&huart3,"backup application available\r\n",31,1000);
+
+	  if(backup_application_Receive() < 0){
+		  HAL_UART_Transmit(&huart3,"backup_application_Receive fail\r\n",33,1000);
+		  NVIC_SystemReset();
+	  }else{
+		  HAL_UART_Transmit(&huart3,"backup_application_Receive sucess\r\n",35,1000);
+		  NVIC_SystemReset();
+	  }
+  }
 
   while (1)
   {
-	  if((HAL_GetTick() - t) < 3000 /*|| ((*(__IO uint32_t*)MAIN_APPLICATION_ADDRESS) & 0x2FFD0000 ) != 0x20000000*/ ){
+	  if((HAL_GetTick() - t) < 3000){
 		  if(SerialKeyPressed(&k)){
-			  if(SerialDownload_update() == 0){
+			  HAL_UART_Transmit(&huart3,"BTN press\r\n",11,1000);
+			  if(SerialDownload_backup() == 0){
 				  break;
 			  }else{
 				  NVIC_SystemReset();
 			  }
 		  }
-	  }else
+	  }else{
 		  break;
-
+	  }
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
   }
   JumpAddress = *(__IO uint32_t*) (MAIN_APPLICATION_ADDRESS + 4);

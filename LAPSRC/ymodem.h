@@ -56,7 +56,9 @@
 
 /* Exported functions ------------------------------------------------------- */
 int32_t Ymodem_Receive (uint8_t *);
+
 int32_t Ymodem_Receive_update (uint8_t *);
+int32_t Ymodem_Receive_backup (uint8_t *);
 int32_t backup_application_Receive();
 
 

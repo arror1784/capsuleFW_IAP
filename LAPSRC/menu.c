@@ -30,7 +30,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "common.h"
+#include "LAPSRCcommon.h"
 #include "flash_if.h"
 #include "menu.h"
 #include "ymodem.h"
@@ -49,7 +49,7 @@ uint8_t tab_1024[1024] =
 uint8_t FileName[FILE_NAME_LENGTH];
 
 /* Private function prototypes -----------------------------------------------*/
-    // Çì´õ·Î ÀÌµ¿
+    // å ì™ì˜™å ì™ì˜™å ï¿½ å ì‹±ë“¸ì˜™
 void SerialUpload(void);
 
 /* Private functions ---------------------------------------------------------*/
@@ -98,7 +98,83 @@ int SerialDownload(void)
     return -4;
   }
 }
+int SerialDownload_update(void){
+    uint8_t Number[10] = "          ";
+  int32_t Size = 0;
 
+//  SerialPutString("Waiting for the file to be sent ... (press 'a' to abort)\n\r");
+  Size = Ymodem_Receive_update(&tab_1024[0]);
+  if (Size > 0)
+  {
+    SerialPutString("\n\n\r Programming Completed Successfully!\n\r--------------------------------\r\n Name: ");
+    SerialPutString(FileName);
+    Int2Str(Number, Size);
+    SerialPutString("\n\r Size: ");
+    SerialPutString(Number);
+    SerialPutString(" Bytes\r\n");
+    SerialPutString("-------------------\r\n");
+    return 0;
+  }
+  else if (Size == -1)
+  {
+    SerialPutString("\n\n\n\n\r\nThe image size is higher than the allowed space memory!\n\r");
+    return -1;
+  }
+  else if (Size == -2)
+  {
+    SerialPutString("\n\n\n\n\r\nVerification failed!\n\r");
+    return -2;
+  }
+  else if (Size == -3)
+  {
+    SerialPutString("\n\n\n\n\r\nAborted by user.\n\r");
+    return -3;
+  }
+  else
+  {
+    SerialPutString("\n\n\n\r\nFailed to receive the file!\n\r");
+    return -4;
+  }
+}
+
+int SerialDownload_backup(void){
+    uint8_t Number[10] = "          ";
+  int32_t Size = 0;
+
+//  SerialPutString("Waiting for the file to be sent ... (press 'a' to abort)\n\r");
+  Size = Ymodem_Receive_backup(&tab_1024[0]);
+  if (Size > 0)
+  {
+    SerialPutString("\n\n\r Programming Completed Successfully!\n\r--------------------------------\r\n Name: ");
+    SerialPutString(FileName);
+    Int2Str(Number, Size);
+    SerialPutString("\n\r Size: ");
+    SerialPutString(Number);
+    SerialPutString(" Bytes\r\n");
+    SerialPutString("-------------------\r\n");
+    return 0;
+  }
+  else if (Size == -1)
+  {
+    SerialPutString("\n\n\n\n\r\nThe image size is higher than the allowed space memory!\n\r");
+    return -1;
+  }
+  else if (Size == -2)
+  {
+    SerialPutString("\n\n\n\n\r\nVerification failed!\n\r");
+    return -2;
+  }
+  else if (Size == -3)
+  {
+    SerialPutString("\n\n\n\n\r\nAborted by user.\n\r");
+    return -3;
+  }
+  else
+  {
+    SerialPutString("\n\n\n\r\nFailed to receive the file!\n\r");
+    return -4;
+  }
+}
 /**
   * @brief  Upload a file via serial port.
   * @param  None
