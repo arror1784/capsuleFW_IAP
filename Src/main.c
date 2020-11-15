@@ -105,7 +105,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   t=HAL_GetTick();
-  HAL_UART_Transmit(&huart3,"IAP\r\n",5,1000);
+  HAL_UART_Transmit(&huart3,"IAP2\r\n",6,1000);
 
   if(((*(__IO uint32_t*)MAIN_APPLICATION_ADDRESS) & 0x2FFD0000 ) != 0x20000000){
 	  SerialDownload_update();
@@ -128,7 +128,7 @@ int main(void)
 
   while (1)
   {
-	  if((HAL_GetTick() - t) < 3000){
+	  if((HAL_GetTick() - t) < 1000){
 		  if(SerialKeyPressed(&k)){
 			  HAL_UART_Transmit(&huart3,"BTN press\r\n",11,1000);
 			  if(SerialDownload_backup() == 0){
@@ -146,8 +146,13 @@ int main(void)
   JumpAddress = *(__IO uint32_t*) (MAIN_APPLICATION_ADDRESS + 4);
   /* Jump to user application */
   Jump_To_Application = (pFunction) JumpAddress;
+
+//  SysTick->CTRL = 0 ;
+//  SCB->VTOR = MAIN_APPLICATION_ADDRESS;
+
   /* Initialize user application's Stack Pointer */
   __set_MSP(*(__IO uint32_t*) MAIN_APPLICATION_ADDRESS);
+  HAL_UART_Transmit(&huart3,"JUMP to main application\r\n",26,1000);
   Jump_To_Application();
   /* USER CODE END 3 */
 }
